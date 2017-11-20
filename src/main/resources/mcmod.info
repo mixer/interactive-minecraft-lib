@@ -1,0 +1,21 @@
+[
+  {
+    "modid": "mixer-interactive-lib",
+    "name": "Mixer Interactive Lib",
+    "description": " Now Minecraft Java Edition mod makers can bring Mixer's Interactivity to their content creations. Add functionality that further enhances your creations, enabling totally new experiences for players when they stream on Mixer.\n\n With an easy to use library, you can add custom interactive features to your mods. The possibilities are endless! And with Mixer's Faster Than Light streaming protocol, viewers of your players will be able to watch and play with less than a second of latency.\n\n Work together, invent minigames, or enjoy hilarious chaos - it's all up to you. Start building today!",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+        "Microsoft Corporation"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [
+    ],
+    "parent":"",
+    "dependencies": [
+    ]
+  }
+]
