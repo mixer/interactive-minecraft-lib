@@ -1,0 +1,119 @@
+buildscript {
+    repositories {
+        jcenter()
+        maven { url = "http://files.minecraftforge.net/maven" }
+    }
+    dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+    }
+}
+
+repositories {
+    mavenLocal()
+    maven {
+        name 'Mixer Snapshots'
+        url 'https://maven.mixer.com/content/repositories/snapshots'
+    }
+    maven {
+        name 'Mixer Releases'
+        url 'https://maven.mixer.com/content/repositories/releases'
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+version = "${minecraft_version}-${mod_version}"
+group = mod_group
+archivesBaseName = mod_artifact_basename
+
+sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8 // Need this here so eclipse task generates correctly.
+compileJava {
+    sourceCompatibility = targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+minecraft {
+    version = minecraft_version + "-" + forge_version
+    runDir = "run"
+    mappings = mcp_mappings_version
+
+    // Set mod version in code prior to compilation
+    replaceIn "MixerInteractiveLib.java"
+    replace "@MOD_VERSION@", "${minecraft_version}-${mod_version}"
+}
+
+//Add "embedded" configuration
+configurations {
+    embed
+    compile.extendsFrom embed
+
+    embed.exclude module: 'guava'
+    embed.exclude module: 'httpclient'
+    embed.exclude module: 'gson'
+    embed.exclude module: 'log4j-api'
+    embed.exclude module: 'log4j-core'
+}
+
+dependencies {
+    embed 'com.mixer:mixer-interactive-api:2.0.2'
+}
+
+processResources {
+    // this will ensure that this task is redone when the versions change.
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+
+    // replace stuff in mcmod.info, nothing else
+    from(sourceSets.main.resources.srcDirs) {
+        include 'mcmod.info'
+                
+        // replace version and mcversion
+        expand 'version':project.version, 'mcversion':project.minecraft.version
+    }
+        
+    // copy everything else except the mcmod.info
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'mcmod.info'
+    }
+}
+
+jar {
+    dependsOn configurations.runtime
+
+    from {
+        (configurations.runtime - configurations.provided).collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
+    }
+    exclude('dummyThing', 'log4j2.xml')
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            groupId 'com.mixer.interactive.minecraft'
+            artifactId 'minecraft-interactive-lib'
+
+            from components.java
+        }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            credentials {
+                username '${env.CI_DEPLOY_USERNAME}'
+                password '${env.CI_DEPLOY_PASSWORD}'
+            }
+
+            if (project.version.endsWith('-SNAPSHOT')) {
+                url 'https://maven.mixer.com/content/repositories/snapshots'
+            }
+            else {
+                url 'https://maven.mixer.com/content/repositories/releases'
+            }
+        }
+    }
+}
