@@ -31,7 +31,6 @@ hs_err_pid*
 
 ## ForgeGradle
 /run
-/logs
 
 ## eclipse
 /eclipse
