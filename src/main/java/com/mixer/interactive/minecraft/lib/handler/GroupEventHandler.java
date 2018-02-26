@@ -5,10 +5,6 @@ import com.mixer.interactive.event.group.GroupCreateEvent;
 import com.mixer.interactive.event.group.GroupDeleteEvent;
 import com.mixer.interactive.event.group.GroupUpdateEvent;
 import com.mixer.interactive.minecraft.lib.MixerInteractive;
-import com.mixer.interactive.resources.group.InteractiveGroup;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Maintains the local cache of InteractiveGroups by listening for create/update/delete group events.
@@ -29,7 +25,7 @@ public class GroupEventHandler extends AbstractEventHandler {
      */
     @Subscribe
     public void onGroupCreated(GroupCreateEvent event) {
-        MixerInteractive.getGroups().addAll(event.getGroups());
+        event.getGroups().forEach(g -> MixerInteractive.getGroups().put(g.getGroupID(), g));
     }
 
     /**
@@ -42,16 +38,7 @@ public class GroupEventHandler extends AbstractEventHandler {
      */
     @Subscribe
     public void onGroupUpdated(GroupUpdateEvent event) {
-        Set<InteractiveGroup> groupsToUpdate = new HashSet<>();
-        for (InteractiveGroup group : event.getGroups()) {
-            for (InteractiveGroup cachedGroup : MixerInteractive.getGroups()) {
-                if (cachedGroup.getGroupID().equals(group.getGroupID())) {
-                    groupsToUpdate.add(cachedGroup);
-                }
-            }
-        }
-        MixerInteractive.getGroups().removeAll(groupsToUpdate);
-        MixerInteractive.getGroups().addAll(event.getGroups());
+        event.getGroups().forEach(g -> MixerInteractive.getGroups().replace(g.getGroupID(), g));
     }
 
     /**
@@ -64,12 +51,6 @@ public class GroupEventHandler extends AbstractEventHandler {
      */
     @Subscribe
     public void onGroupDeleted(GroupDeleteEvent event) {
-        Set<InteractiveGroup> groups = new HashSet<>();
-        for (InteractiveGroup group : MixerInteractive.getGroups()) {
-            if (group.getGroupID().equals(event.getGroupID())) {
-                groups.add(group);
-            }
-        }
-        MixerInteractive.getGroups().removeAll(groups);
+        MixerInteractive.getGroups().remove(event.getGroupID());
     }
 }

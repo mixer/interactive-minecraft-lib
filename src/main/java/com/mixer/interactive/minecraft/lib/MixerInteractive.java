@@ -1,13 +1,8 @@
 package com.mixer.interactive.minecraft.lib;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Sets;
 import com.mixer.interactive.GameClient;
-import com.mixer.interactive.minecraft.lib.handler.AbstractEventHandler;
-import com.mixer.interactive.minecraft.lib.handler.GroupEventHandler;
-import com.mixer.interactive.minecraft.lib.handler.ParticipantEventHandler;
-import com.mixer.interactive.minecraft.lib.handler.SceneEventHandler;
-import com.mixer.interactive.resources.control.InteractiveControl;
+import com.mixer.interactive.minecraft.lib.handler.*;
 import com.mixer.interactive.resources.group.InteractiveGroup;
 import com.mixer.interactive.resources.participant.InteractiveParticipant;
 import com.mixer.interactive.resources.scene.InteractiveScene;
@@ -15,9 +10,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * MixerInteractive provides a singleton that contains a game client for which other mods can use to manage their Interactive
@@ -48,17 +43,17 @@ public class MixerInteractive {
     /**
      * Locally cached copy of all participants for the currently connected game client
      */
-    private Set<InteractiveParticipant> participants = Sets.newConcurrentHashSet();
+    private Map<String, InteractiveParticipant> participants = new ConcurrentHashMap<>();
 
     /**
      * Locally cached copy of all scenes for the currently connected game client
      */
-    private Set<InteractiveScene> scenes = Sets.newConcurrentHashSet();
+    private Map<String, InteractiveScene> scenes = new ConcurrentHashMap<>();
 
     /**
      * Locally cached copy of all groups for the currently connected game client
      */
-    private Set<InteractiveGroup> groups = Sets.newConcurrentHashSet();
+    private Map<String, InteractiveGroup> groups = new ConcurrentHashMap<>();
 
     /**
      * List of default event handlers to be registered with game clients
@@ -76,6 +71,7 @@ public class MixerInteractive {
      * @since   1.0.0
      */
     private MixerInteractive() {
+        defaultEventHandlers.add(new ConnectionEventHandler());
         defaultEventHandlers.add(new ParticipantEventHandler());
         defaultEventHandlers.add(new GroupEventHandler());
         defaultEventHandlers.add(new SceneEventHandler());
@@ -133,55 +129,42 @@ public class MixerInteractive {
      *
      * @return  List of custom event handlers
      *
-     * @since   1.0.0
+     * @since   1.1.0
      */
     public static List<AbstractEventHandler> getCustomEventHandlers() {
         return INSTANCE.customEventHandlers;
     }
 
     /**
-     * Returns the locally cached Set of participants.
+     * Returns the Map of locally cached participants.
      *
-     * @return  Set of InteractiveParticipants
+     * @return  Map of InteractiveParticipants
      *
-     * @since   1.0.0
+     * @since   1.1.0
      */
-    public static Set<InteractiveParticipant> getParticipants() {
+    public static Map<String, InteractiveParticipant> getParticipants() {
         return INSTANCE.participants;
     }
 
     /**
-     * Returns the locally cached Set of scenes.
+     * Returns the Map of locally cached scenes.
      *
-     * @return  Set of InteractiveScenes
+     * @return  Map of InteractiveScenes
      *
-     * @since   1.0.0
+     * @since   1.1.0
      */
-    public static Set<InteractiveScene> getScenes() {
+    public static Map<String, InteractiveScene> getScenes() {
         return INSTANCE.scenes;
     }
 
     /**
-     * Returns the locally cached Set of groups.
+     * Returns the Map of locally cached groups.
      *
-     * @return  Set of InteractiveGroups
+     * @return  Map of InteractiveGroups
      *
      * @since   1.0.0
      */
-    public static Set<InteractiveGroup> getGroups() {
+    public static Map<String, InteractiveGroup> getGroups() {
         return INSTANCE.groups;
-    }
-
-    /**
-     * Iterates through all locally cached scenes and returns a set of all controls within them.
-     *
-     * @return  Set of InteractiveControls
-     *
-     * @since   1.0.0
-     */
-    public static Set<InteractiveControl> getControls() {
-        Set<InteractiveControl> controls = new HashSet<>();
-        INSTANCE.scenes.forEach(scene -> controls.addAll(scene.getControls()));
-        return controls;
     }
 }

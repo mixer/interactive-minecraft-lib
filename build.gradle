@@ -56,7 +56,7 @@ configurations {
 }
 
 dependencies {
-    embed 'com.mixer:mixer-interactive-api:2.0.2'
+    embed 'com.mixer:mixer-interactive-api:2.1.1'
 }
 
 processResources {

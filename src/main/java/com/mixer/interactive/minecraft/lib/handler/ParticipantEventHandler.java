@@ -5,12 +5,6 @@ import com.mixer.interactive.event.participant.ParticipantJoinEvent;
 import com.mixer.interactive.event.participant.ParticipantLeaveEvent;
 import com.mixer.interactive.event.participant.ParticipantUpdateEvent;
 import com.mixer.interactive.minecraft.lib.MixerInteractive;
-import com.mixer.interactive.resources.participant.InteractiveParticipant;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * Maintains the local cache of InteractiveParticipants by listening for join/update/leave participant events.
@@ -22,11 +16,6 @@ import java.util.Set;
 public class ParticipantEventHandler extends AbstractEventHandler {
 
     /**
-     * Logger
-     */
-    private static final Logger LOG = LogManager.getLogger();
-
-    /**
      * Adds all InteractiveParticipants to the local cache that joined on the Mixer Interactive service.
      *
      * @param   event
@@ -36,7 +25,7 @@ public class ParticipantEventHandler extends AbstractEventHandler {
      */
     @Subscribe
     public void onParticipantJoined(ParticipantJoinEvent event) {
-        MixerInteractive.getParticipants().addAll(event.getParticipants());
+        event.getParticipants().forEach(p -> MixerInteractive.getParticipants().put(p.getSessionID(), p));
     }
 
     /**
@@ -49,16 +38,7 @@ public class ParticipantEventHandler extends AbstractEventHandler {
      */
     @Subscribe
     public void onParticipantUpdated(ParticipantUpdateEvent event) {
-        Set<InteractiveParticipant> participantsToUpdate = new HashSet<>();
-        for (InteractiveParticipant participant : event.getParticipants()) {
-            for (InteractiveParticipant cachedParticipant : MixerInteractive.getParticipants()) {
-                if (cachedParticipant.getSessionID().equals(participant.getSessionID())) {
-                    participantsToUpdate.add(cachedParticipant);
-                }
-            }
-        }
-        MixerInteractive.getParticipants().removeAll(participantsToUpdate);
-        MixerInteractive.getParticipants().addAll(event.getParticipants());
+        event.getParticipants().forEach(p -> MixerInteractive.getParticipants().replace(p.getSessionID(), p));
     }
 
     /**
@@ -71,15 +51,6 @@ public class ParticipantEventHandler extends AbstractEventHandler {
      */
     @Subscribe
     public void onParticipantLeft(ParticipantLeaveEvent event) {
-        LOG.debug(event);
-        Set<InteractiveParticipant> participantsToUpdate = new HashSet<>();
-        for (InteractiveParticipant participant : event.getParticipants()) {
-            for (InteractiveParticipant cachedParticipant : MixerInteractive.getParticipants()) {
-                if (cachedParticipant.getSessionID().equals(participant.getSessionID())) {
-                    participantsToUpdate.add(cachedParticipant);
-                }
-            }
-        }
-        MixerInteractive.getParticipants().removeAll(participantsToUpdate);
+        event.getParticipants().forEach(p -> MixerInteractive.getParticipants().remove(p.getSessionID()));
     }
 }
