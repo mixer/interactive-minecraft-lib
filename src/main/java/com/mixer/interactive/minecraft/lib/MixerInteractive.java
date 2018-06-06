@@ -94,14 +94,16 @@ public class MixerInteractive {
      *
      * @param   projectVersionId
      *          Project verison id that the new game client will use
+     * @param   cliendId
+     *          Developer client id
      *
      * @return  The new game client
      *
      * @since   1.0.0
      */
-    public static GameClient initGameClient(int projectVersionId) {
+    public static GameClient initGameClient(int projectVersionId, String cliendId) {
         LOG.debug("Building new game client with projectVersionId={}", projectVersionId);
-        INSTANCE.gameClient = new GameClient(projectVersionId);
+        INSTANCE.gameClient = new GameClient(projectVersionId, cliendId);
         for (AbstractEventHandler defaultHandler : INSTANCE.defaultEventHandlers) {
             LOG.debug("Registering default event handler '{}' to game client for project id {}", defaultHandler, projectVersionId);
             INSTANCE.gameClient.getEventBus().register(defaultHandler);

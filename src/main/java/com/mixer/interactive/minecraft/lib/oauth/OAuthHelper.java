@@ -80,7 +80,7 @@ public class OAuthHelper {
      * @since   1.0.0
      */
     public static CompletableFuture<OAuthToken> getOAuthToken(ICommandSender requester) {
-        return CompletableFuture.supplyAsync(() -> getShortCode())
+        return CompletableFuture.supplyAsync(OAuthHelper::getShortCode)
                 .thenCompose(shortCode -> CompletableFuture.supplyAsync(() -> getHandleCode(requester, shortCode)))
                 .thenCompose(handleCode -> CompletableFuture.supplyAsync(() -> getOAuthToken(handleCode)))
                 .exceptionally(throwable -> {
