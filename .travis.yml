@@ -1,5 +1,11 @@
 language: java
-jdk: oraclejdk8
-cache:
-  directories: "$HOME/.m2"
+jdk: 
+    - oraclejdk8
+    - openjdk8
 
+install: gradle setupCIWorkspace -S
+script: gradle build -S
+after_success: gradle publish
+
+notifications:
+    email: false
