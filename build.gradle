@@ -98,9 +98,6 @@ publishing {
             from components.java
         }
     }
-}
-
-publishing {
     repositories {
         maven {
             credentials {
